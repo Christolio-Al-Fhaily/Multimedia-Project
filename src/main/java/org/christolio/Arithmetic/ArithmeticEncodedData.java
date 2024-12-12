@@ -1,21 +1,23 @@
 package org.christolio.Arithmetic;
 
+import java.math.BigDecimal;
+
 public class ArithmeticEncodedData {
-    private double encodedValue;
+    private BigDecimal encodedValue;
     private FrequencyTable frequencyTable;
     private int dataSize;
 
-    public ArithmeticEncodedData(double encodedValue, FrequencyTable frequencyTable, int dataSize) {
+    public ArithmeticEncodedData(BigDecimal encodedValue, FrequencyTable frequencyTable, int dataSize) {
         this.encodedValue = encodedValue;
         this.frequencyTable = frequencyTable;
         this.dataSize = dataSize;
     }
 
-    public double getEncodedValue() {
+    public BigDecimal getEncodedValue() {
         return encodedValue;
     }
 
-    public void setEncodedValue(double encodedValue) {
+    public void setEncodedValue(BigDecimal encodedValue) {
         this.encodedValue = encodedValue;
     }
 

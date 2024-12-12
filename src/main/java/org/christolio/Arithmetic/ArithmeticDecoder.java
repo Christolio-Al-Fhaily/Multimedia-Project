@@ -1,5 +1,8 @@
 package org.christolio.Arithmetic;
 
+import me.tongfei.progressbar.ProgressBar;
+
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,35 +10,39 @@ public class ArithmeticDecoder {
     public int[] decode(ArithmeticEncodedData encodedData) {
         int dataSize = encodedData.getDataSize();
         FrequencyTable freqTable = encodedData.getFrequencyMap();
-        double encodedValue = encodedData.getEncodedValue();
+        BigDecimal encodedValue = encodedData.getEncodedValue().stripTrailingZeros();
 
         int[] decodedData = new int[dataSize];
 
-        Map<Integer, Double> cumulative = freqTable.getCumulativeProbabilities();
-        Map<Integer, Double> probabilities = new HashMap<>();
+        Map<Integer, BigDecimal> cumulative = freqTable.getCumulativeProbabilities();
+        Map<Integer, BigDecimal> probabilities = new HashMap<>();
         for (int symbol : cumulative.keySet()) {
             probabilities.put(symbol, freqTable.getProbability(symbol));
         }
 
-        double low = 0.0;
-        double high = 1.0;
+        BigDecimal low = BigDecimal.ZERO;
+        BigDecimal high = BigDecimal.ONE;
+        ProgressBar progressBar = new ProgressBar("Decoding", dataSize);
 
         for (int i = 0; i < dataSize; i++) {
-            double range = high - low;
+            BigDecimal range = high.subtract(low);
 
-            for (Map.Entry<Integer, Double> entry : cumulative.entrySet()) {
+            for (Map.Entry<Integer, BigDecimal> entry : cumulative.entrySet()) {
                 int symbol = entry.getKey();
-                double symbolLow = low + range * entry.getValue();
-                double symbolHigh = symbolLow + range * probabilities.get(symbol);
+                BigDecimal symbolLow = low.add(range.multiply(entry.getValue()));
+                BigDecimal symbolHigh = symbolLow.add(range.multiply(probabilities.get(symbol)));
 
-                if (encodedValue >= symbolLow && encodedValue < symbolHigh) {
+                if (encodedValue.compareTo(symbolLow) >= 0 && encodedValue.compareTo(symbolHigh) < 0) {
                     decodedData[i] = symbol;
                     low = symbolLow;
                     high = symbolHigh;
                     break;
                 }
             }
+            progressBar.step();
         }
+
+        progressBar.close();
         return decodedData;
     }
 }

@@ -1,11 +1,14 @@
 package org.christolio.Arithmetic;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
 public class FrequencyTable {
     private Map<Integer, Integer> frequencies = new HashMap<>();
     private int dataSize = 0;
+    private final int SCALE = 5;
 
     public FrequencyTable(Map<Integer, Integer> frequencies, int total) {
         this.frequencies = frequencies;
@@ -31,16 +34,17 @@ public class FrequencyTable {
         return dataSize;
     }
 
-    public double getProbability(int symbol) {
-        return (double) getFrequency(symbol) / dataSize;
+    public BigDecimal getProbability(int symbol) {
+        BigDecimal frequency = BigDecimal.valueOf(getFrequency(symbol));
+        return frequency.divide(BigDecimal.valueOf(dataSize), SCALE, RoundingMode.HALF_UP).stripTrailingZeros();
     }
 
-    public Map<Integer, Double> getCumulativeProbabilities() {
-        Map<Integer, Double> cumulative = new HashMap<>();
-        double cumulativeProbability = 0.0;
+    public Map<Integer, BigDecimal> getCumulativeProbabilities() {
+        Map<Integer, BigDecimal> cumulative = new HashMap<>();
+        BigDecimal cumulativeProbability = BigDecimal.ZERO;
         for (Map.Entry<Integer, Integer> entry : frequencies.entrySet()) {
             cumulative.put(entry.getKey(), cumulativeProbability);
-            cumulativeProbability += getProbability(entry.getKey());
+            cumulativeProbability = cumulativeProbability.add(getProbability(entry.getKey())).stripTrailingZeros();
         }
         return cumulative;
     }
