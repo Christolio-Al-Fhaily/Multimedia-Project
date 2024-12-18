@@ -1,4 +1,4 @@
-package org.christolio.Arithmetic;
+package org.christolio.Arithmetic.Codec;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

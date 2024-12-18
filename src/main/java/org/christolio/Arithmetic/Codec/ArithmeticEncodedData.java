@@ -1,8 +1,9 @@
-package org.christolio.Arithmetic;
+package org.christolio.Arithmetic.Codec;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class ArithmeticEncodedData {
+public class ArithmeticEncodedData implements Serializable {
     private BigDecimal encodedValue;
     private FrequencyTable frequencyTable;
     private int dataSize;

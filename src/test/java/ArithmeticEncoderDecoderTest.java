@@ -1,9 +1,7 @@
-import org.christolio.Arithmetic.ArithmeticDecoder;
-import org.christolio.Arithmetic.ArithmeticEncodedData;
-import org.christolio.Arithmetic.ArithmeticEncoder;
+import org.christolio.Arithmetic.Codec.ArithmeticDecoder;
+import org.christolio.Arithmetic.Codec.ArithmeticEncodedData;
+import org.christolio.Arithmetic.Codec.ArithmeticEncoder;
 import org.junit.Test;
-
-import java.math.BigDecimal;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

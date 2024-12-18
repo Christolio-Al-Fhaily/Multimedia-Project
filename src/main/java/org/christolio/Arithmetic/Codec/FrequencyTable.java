@@ -1,11 +1,12 @@
-package org.christolio.Arithmetic;
+package org.christolio.Arithmetic.Codec;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FrequencyTable {
+public class FrequencyTable implements Serializable {
     private Map<Integer, Integer> frequencies = new HashMap<>();
     private int dataSize = 0;
     private final int SCALE = 5;

@@ -1,11 +1,12 @@
 package org.christolio.Arithmetic.Image;
 
-import org.christolio.Arithmetic.ArithmeticEncodedData;
+import org.christolio.Arithmetic.Codec.ArithmeticEncodedData;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArithmeticImageEncodedData {
+public class ArithmeticImageEncodedData implements Serializable {
     private int width;
     private int height;
     private int chunkSize;

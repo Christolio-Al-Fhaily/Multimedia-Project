@@ -1,9 +1,8 @@
 package org.christolio.Arithmetic.Image;
 
 import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import org.christolio.Arithmetic.ArithmeticEncodedData;
-import org.christolio.Arithmetic.ArithmeticEncoder;
+import org.christolio.Arithmetic.Codec.ArithmeticEncodedData;
+import org.christolio.Arithmetic.Codec.ArithmeticEncoder;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -23,7 +22,9 @@ public class ArithmeticImageEncoder {
     private ProgressBar progressBar;
 
     public ArithmeticImageEncoder(int chunkSize) {
-        this.chunkSize = chunkSize;
+        if (chunkSize > 0)
+            this.chunkSize = chunkSize;
+        else throw new RuntimeException("ChunkSize must be > 0");
     }
 
     public ArithmeticImageEncodedData encodeImage(BufferedImage imageToEncode) throws ExecutionException, InterruptedException {

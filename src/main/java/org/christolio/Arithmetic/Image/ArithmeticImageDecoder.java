@@ -1,8 +1,8 @@
 package org.christolio.Arithmetic.Image;
 
 import me.tongfei.progressbar.ProgressBar;
-import org.christolio.Arithmetic.ArithmeticDecoder;
-import org.christolio.Arithmetic.ArithmeticEncodedData;
+import org.christolio.Arithmetic.Codec.ArithmeticDecoder;
+import org.christolio.Arithmetic.Codec.ArithmeticEncodedData;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
