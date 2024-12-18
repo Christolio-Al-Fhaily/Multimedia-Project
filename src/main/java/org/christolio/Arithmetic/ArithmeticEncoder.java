@@ -1,7 +1,5 @@
 package org.christolio.Arithmetic;
 
-import me.tongfei.progressbar.ProgressBar;
-
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -13,7 +11,6 @@ public class ArithmeticEncoder {
 
         BigDecimal low = BigDecimal.ZERO;
         BigDecimal high = BigDecimal.ONE;
-
         for (int symbol : data) {
             BigDecimal range = high.subtract(low);
             high = low.add(range.multiply(cumulative.get(symbol).add(freqTable.getProbability(symbol))));

@@ -1,6 +1,7 @@
 package org.christolio.Arithmetic.Image;
 
 import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
 import org.christolio.Arithmetic.ArithmeticEncodedData;
 import org.christolio.Arithmetic.ArithmeticEncoder;
 
@@ -9,18 +10,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ArithmeticImageEncoder {
 
     private int chunkSize;
-    private ArithmeticEncoder encoder = new ArithmeticEncoder();
+    private final ArithmeticEncoder encoder = new ArithmeticEncoder();
     private int numberOfChunksPerChannel;
+    private ProgressBar progressBar;
 
     public ArithmeticImageEncoder(int chunkSize) {
         this.chunkSize = chunkSize;
     }
 
-    public ArithmeticImageEncodedData encodeImage(BufferedImage imageToEncode) {
+    public ArithmeticImageEncodedData encodeImage(BufferedImage imageToEncode) throws ExecutionException, InterruptedException {
         int width = imageToEncode.getWidth();
         int height = imageToEncode.getHeight();
         if (chunkSize > width * height)
@@ -57,15 +63,21 @@ public class ArithmeticImageEncoder {
             }
         }
 
-        ProgressBar progressBar = new ProgressBar("Encoding channels...", 4);
-        List<ArithmeticEncodedData> encodedAlphaChannel = encodeChannel(alphaArray);
-        progressBar.step();
-        List<ArithmeticEncodedData> encodedRedChannel = encodeChannel(redArray);
-        progressBar.step();
-        List<ArithmeticEncodedData> encodedGreenChannel = encodeChannel(greenArray);
-        progressBar.step();
-        List<ArithmeticEncodedData> encodedBlueChannel = encodeChannel(blueArray);
-        progressBar.step();
+        progressBar = ProgressBar.builder().setTaskName("Encoding channels").setInitialMax(4).showSpeed().build();
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        List<Future<List<ArithmeticEncodedData>>> futures = new ArrayList<>();
+
+        futures.add(executor.submit(() -> encodeChannel(alphaArray)));
+        futures.add(executor.submit(() -> encodeChannel(redArray)));
+        futures.add(executor.submit(() -> encodeChannel(greenArray)));
+        futures.add(executor.submit(() -> encodeChannel(blueArray)));
+
+        List<ArithmeticEncodedData> encodedAlphaChannel = futures.get(0).get();
+        List<ArithmeticEncodedData> encodedRedChannel = futures.get(1).get();
+        List<ArithmeticEncodedData> encodedGreenChannel = futures.get(2).get();
+        List<ArithmeticEncodedData> encodedBlueChannel = futures.get(3).get();
+        executor.shutdown();
         progressBar.close();
 
 
@@ -74,6 +86,7 @@ public class ArithmeticImageEncoder {
         encodedImage.addChunks(encodedRedChannel);
         encodedImage.addChunks(encodedGreenChannel);
         encodedImage.addChunks(encodedBlueChannel);
+        System.out.println("Encoded " + encodedImage.getEncodedChunks().size() + " chunks");
         return encodedImage;
     }
 
@@ -85,6 +98,7 @@ public class ArithmeticImageEncoder {
             ArithmeticEncodedData encodedChunk = encoder.encode(Arrays.copyOfRange(channel, i * chunkSize, (i + 1) * chunkSize));
             encodedChannel.add(encodedChunk);
         }
+        progressBar.step();
         return encodedChannel;
     }
 }
