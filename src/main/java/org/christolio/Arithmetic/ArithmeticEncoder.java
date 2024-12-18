@@ -14,14 +14,11 @@ public class ArithmeticEncoder {
         BigDecimal low = BigDecimal.ZERO;
         BigDecimal high = BigDecimal.ONE;
 
-        ProgressBar progressBar = new ProgressBar("Encoding", data.length);
         for (int symbol : data) {
-            progressBar.step();
             BigDecimal range = high.subtract(low);
             high = low.add(range.multiply(cumulative.get(symbol).add(freqTable.getProbability(symbol))));
             low = low.add(range.multiply(cumulative.get(symbol)));
         }
-        progressBar.close();
         return new ArithmeticEncodedData(low.stripTrailingZeros(), freqTable, data.length);
     }
 }

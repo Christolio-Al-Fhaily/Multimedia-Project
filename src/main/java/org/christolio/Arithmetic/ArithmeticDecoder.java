@@ -1,7 +1,5 @@
 package org.christolio.Arithmetic;
 
-import me.tongfei.progressbar.ProgressBar;
-
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +20,6 @@ public class ArithmeticDecoder {
 
         BigDecimal low = BigDecimal.ZERO;
         BigDecimal high = BigDecimal.ONE;
-        ProgressBar progressBar = new ProgressBar("Decoding", dataSize);
 
         for (int i = 0; i < dataSize; i++) {
             BigDecimal range = high.subtract(low);
@@ -39,10 +36,7 @@ public class ArithmeticDecoder {
                     break;
                 }
             }
-            progressBar.step();
         }
-
-        progressBar.close();
         return decodedData;
     }
 }
