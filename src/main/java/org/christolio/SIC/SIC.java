@@ -34,7 +34,7 @@ public class SIC {
         this.chunkSize = chunkSize;
     }
 
-    public void encode(File imageFile) throws IOException, ExecutionException, InterruptedException {
+    public Metrics encode(File imageFile) throws IOException, ExecutionException, InterruptedException {
         String filePath = imageFile.getPath();
         verifyPNG(filePath);
         BufferedImage image = ImageIO.read(Objects.requireNonNull(imageFile));
@@ -43,6 +43,7 @@ public class SIC {
         long compressedSize = SICWriter.write(encodedData, imageFile.getParentFile().getPath(), "encoded_" + imageFile.getName().substring(0, imageFile.getName().lastIndexOf(".")));
         Metrics metrics = new Metrics(imageFile.length(), compressedSize, image, quantizedImage);
         System.out.println(metrics);
+        return metrics;
     }
 
     public void decode(File inputFile) throws ExecutionException, InterruptedException, IOException {

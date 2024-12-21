@@ -3,6 +3,7 @@ package org.christolio;
 import org.christolio.Arithmetic.Image.ArithmeticImageDecoder;
 import org.christolio.Arithmetic.Image.ArithmeticImageEncodedData;
 import org.christolio.Arithmetic.Image.ArithmeticImageEncoder;
+import org.christolio.Optimization.SICOptimizer;
 import org.christolio.PQ.PredictiveQuantizer;
 import org.christolio.SIC.IO.SICReader;
 import org.christolio.SIC.IO.SICWriter;
@@ -17,7 +18,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-        testArithmetic();
+        testSICOptimizer();
     }
 
     public static void testArithmetic() throws IOException, ExecutionException, InterruptedException {
@@ -47,5 +48,13 @@ public class Main {
         sic.encode(imageFile);
         File file = new File("C:\\Users\\Christolio\\Desktop\\encoded_testImage.sic");
         sic.decode(file);
+    }
+
+    public static void testSICOptimizer() throws IOException, ExecutionException, InterruptedException {
+        File imageFile = new File("C:\\Users\\Christolio\\Desktop\\testImage.png");
+        File outputFile = new File("C:\\Users\\Christolio\\Desktop\\encoded_testImage.sic");
+        File outputCSV = new File("C:\\Users\\Christolio\\Desktop\\optimizer_results.csv");
+        SICOptimizer optimizer = new SICOptimizer(500, 2000, 500, 16, 64, 16, outputCSV);
+        optimizer.optimize(imageFile, outputFile);
     }
 }
