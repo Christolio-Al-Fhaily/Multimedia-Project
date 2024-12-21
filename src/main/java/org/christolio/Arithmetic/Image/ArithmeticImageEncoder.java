@@ -48,7 +48,7 @@ public class ArithmeticImageEncoder {
         // Flatten the image by reading pixel values row by row
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                // Get the red value of the pixel
+
                 int pixel = imageToEncode.getRGB(x, y);
 
                 int alpha = (pixel >> 24) & 0xFF;
@@ -56,7 +56,6 @@ public class ArithmeticImageEncoder {
                 int green = pixel >> 8 & 0xFF;
                 int blue = pixel & 0xFF;
 
-                // Store the red in the array
                 alphaArray[y * width + x] = alpha;
                 redArray[y * width + x] = red;
                 greenArray[y * width + x] = green;
