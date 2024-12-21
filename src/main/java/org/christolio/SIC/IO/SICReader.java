@@ -1,4 +1,4 @@
-package org.christolio.Arithmetic.IO;
+package org.christolio.SIC.IO;
 
 import org.christolio.Arithmetic.Image.ArithmeticImageEncodedData;
 
