@@ -137,5 +137,4 @@ public class PredictiveQuantizer {
 
         return copy;
     }
-
 }

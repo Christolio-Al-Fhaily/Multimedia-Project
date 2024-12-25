@@ -1,12 +1,10 @@
 package org.christolio.SIC.IO;
 
+import me.tongfei.progressbar.ProgressBar;
 import org.christolio.Arithmetic.Image.ArithmeticImageEncodedData;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.URL;
+import java.io.*;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Super Inefficient Coded (SIC) writer class
@@ -24,10 +22,14 @@ public class SICWriter {
      */
     public static long write(ArithmeticImageEncodedData encodedImageData, String outputPath, String fileName) {
         File outputFile = new File(outputPath, fileName + ".sic");
-
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile))) {
+        try (FileOutputStream fileOut = new FileOutputStream(outputFile);
+             BufferedOutputStream bufferedOut = new BufferedOutputStream(fileOut);
+             GZIPOutputStream gzipOut = new GZIPOutputStream(bufferedOut);
+             ObjectOutputStream objectOut = new ObjectOutputStream(gzipOut)) {
+            System.out.println("Saving...");
             // Write the object to the file
-            oos.writeObject(encodedImageData);
+            objectOut.writeObject(encodedImageData);
+            System.out.println("File saved successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -20,7 +20,7 @@ public class CSVWriter {
 
     public void insertRow(String[] data) {
         // Create the CSV file and write data
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(csvFile.getPath()),true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile.getPath(),true))) {
             // Write data rows
             writer.write(String.join(",", data));
             writer.newLine();

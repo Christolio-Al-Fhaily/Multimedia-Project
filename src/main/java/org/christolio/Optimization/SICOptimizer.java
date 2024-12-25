@@ -3,6 +3,7 @@ package org.christolio.Optimization;
 import org.christolio.SIC.Metrics.Metrics;
 import org.christolio.SIC.SIC;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -32,7 +33,8 @@ public class SICOptimizer {
                 double endTime = System.currentTimeMillis();
                 double encTime = (endTime - startTime) / 1000.0;
                 startTime = System.currentTimeMillis();
-                sic.decode(outputFile);
+                BufferedImage reconstructedImage = sic.decode(outputFile);
+                metrics.calculatePSNR(reconstructedImage);
                 endTime = System.currentTimeMillis();
                 double decTime = (endTime - startTime) / 1000.0;
                 csvWriter.insertRow(new String[]{String.valueOf(i), String.valueOf(j), String.valueOf(encTime), String.valueOf(decTime), String.valueOf(metrics.getCompressionRatio()), String.valueOf(metrics.getPsnr())});

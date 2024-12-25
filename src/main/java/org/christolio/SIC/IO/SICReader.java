@@ -2,10 +2,8 @@ package org.christolio.SIC.IO;
 
 import org.christolio.Arithmetic.Image.ArithmeticImageEncodedData;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Super Inefficient Coded (SIC) reader class
@@ -19,8 +17,12 @@ public class SICReader {
         if (lastDotIndex == -1 || lastDotIndex == filePath.length() - 1 || !extension.equals("sic")) {
             throw new RuntimeException("File must be .sic");
         }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            return (ArithmeticImageEncodedData) ois.readObject();
+        try (FileInputStream fileIn = new FileInputStream(filePath);
+             BufferedInputStream bufferedIn = new BufferedInputStream(fileIn);
+             GZIPInputStream gzipIn = new GZIPInputStream(bufferedIn);
+             ObjectInputStream objectIn = new ObjectInputStream(gzipIn)) {
+            System.out.println("Reading...");
+            return (ArithmeticImageEncodedData) objectIn.readObject();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

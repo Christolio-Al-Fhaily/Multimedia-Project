@@ -6,18 +6,20 @@ public class Metrics {
 
     private double compressionRatio;
     private double psnr;
+    private BufferedImage original;
 
-    public Metrics(long originalSize, long compressedSize, BufferedImage original, BufferedImage compressed) {
+    public Metrics(long originalSize, long compressedSize, BufferedImage original) {
         this.compressionRatio = calculateCompressionRation(originalSize, compressedSize);
-        this.psnr = calculatePSNR(original, compressed);
+//        this.psnr = calculatePSNR(original, compressed);
+        this.original = original;
     }
 
     private double calculateCompressionRation(long originalSize, long compressedSize) {
         return (double) originalSize / compressedSize;
     }
 
-    private double calculatePSNR(BufferedImage original, BufferedImage compressed) {
-        if (original.getWidth() != compressed.getWidth() || original.getHeight() != compressed.getHeight()) {
+    public double calculatePSNR(BufferedImage reconstructed) {
+        if (original.getWidth() != reconstructed.getWidth() || original.getHeight() != reconstructed.getHeight()) {
             throw new IllegalArgumentException("Images must have the same dimensions.");
         }
 
@@ -29,7 +31,7 @@ public class Metrics {
             for (int x = 0; x < width; x++) {
                 // Get ARGB values for each pixel
                 int argbOriginal = original.getRGB(x, y);
-                int argbAltered = compressed.getRGB(x, y);
+                int argbAltered = reconstructed.getRGB(x, y);
 
                 int alphaOriginal = (argbOriginal >> 24) & 0xFF;
                 int redOriginal = (argbOriginal >> 16) & 0xFF;
@@ -60,7 +62,9 @@ public class Metrics {
 
         // Calculate PSNR
         double maxPixelValue = 255.0;
-        return 10 * Math.log10((maxPixelValue * maxPixelValue) / mse);
+        double psnr = 10 * Math.log10((maxPixelValue * maxPixelValue) / mse);
+        this.psnr = psnr;
+        return psnr;
     }
 
     public double getCompressionRatio() {

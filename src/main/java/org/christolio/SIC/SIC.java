@@ -41,15 +41,14 @@ public class SIC {
         BufferedImage quantizedImage = quantizer.quantizeGreenChannel(image);
         ArithmeticImageEncodedData encodedData = encoder.encodeImage(quantizedImage);
         long compressedSize = SICWriter.write(encodedData, imageFile.getParentFile().getPath(), "encoded_" + imageFile.getName().substring(0, imageFile.getName().lastIndexOf(".")));
-        Metrics metrics = new Metrics(imageFile.length(), compressedSize, image, quantizedImage);
-        System.out.println(metrics);
-        return metrics;
+        return new Metrics(imageFile.length(), compressedSize, image);
     }
 
-    public void decode(File inputFile) throws ExecutionException, InterruptedException, IOException {
+    public BufferedImage decode(File inputFile) throws ExecutionException, InterruptedException, IOException {
         ArithmeticImageEncodedData encodedData = SICReader.read(inputFile.getPath());
         BufferedImage decodedImage = decoder.decode(encodedData);
-        ImageIO.write(decodedImage, "PNG", new File(inputFile.getParentFile().getPath() + "\\decoded_" + inputFile.getName().substring(0,inputFile.getName().lastIndexOf(".")) + ".png"));
+        ImageIO.write(decodedImage, "PNG", new File(inputFile.getParentFile().getPath() + "\\decoded_" + inputFile.getName().substring(inputFile.getName().indexOf("_") + 1, inputFile.getName().lastIndexOf(".")) + ".png"));
+        return decodedImage;
     }
 
     public int getNumLevels() {
