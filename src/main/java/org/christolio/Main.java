@@ -18,12 +18,12 @@ import java.util.concurrent.ExecutionException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-        testSICOptimizer();
+        testArithmetic();
     }
 
     public static void testArithmetic() throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = ImageIO.read(Objects.requireNonNull(Main.class.getResource("/testImage.png")));
-        ArithmeticImageEncoder encoder = new ArithmeticImageEncoder(2000);
+        ArithmeticImageEncoder encoder = new ArithmeticImageEncoder(500);
         ArithmeticImageEncodedData encodedImage = encoder.encodeImage(image);
         SICWriter.write(encodedImage, "D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\ImageCompression", "encodedImage");
         ArithmeticImageEncodedData savedEncodedImage = SICReader.read("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\ImageCompression\\encodedImage.sic");

@@ -3,16 +3,14 @@ package org.christolio.Arithmetic.Image;
 import me.tongfei.progressbar.ProgressBar;
 import org.christolio.Arithmetic.Codec.ArithmeticEncodedData;
 import org.christolio.Arithmetic.Codec.ArithmeticEncoder;
+import org.christolio.Arithmetic.Codec.FrequencyTable;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class ArithmeticImageEncoder {
 
@@ -20,6 +18,9 @@ public class ArithmeticImageEncoder {
     private final ArithmeticEncoder encoder = new ArithmeticEncoder();
     private int numberOfChunksPerChannel;
     private ProgressBar progressBar;
+    private FrequencyTable freqTable;
+    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
 
     public ArithmeticImageEncoder(int chunkSize) {
         if (chunkSize > 0)
@@ -30,8 +31,10 @@ public class ArithmeticImageEncoder {
     public ArithmeticImageEncodedData encodeImage(BufferedImage imageToEncode) throws ExecutionException, InterruptedException {
         int width = imageToEncode.getWidth();
         int height = imageToEncode.getHeight();
+
         if (chunkSize > width * height)
             chunkSize = width * height;
+
         numberOfChunksPerChannel = (int) Math.ceil((double) (width * height) / chunkSize);
 
         int[] alphaArray = new int[numberOfChunksPerChannel * chunkSize];
@@ -51,21 +54,16 @@ public class ArithmeticImageEncoder {
 
                 int pixel = imageToEncode.getRGB(x, y);
 
-                int alpha = (pixel >> 24) & 0xFF;
-                int red = pixel >> 16 & 0xFF;
-                int green = pixel >> 8 & 0xFF;
-                int blue = pixel & 0xFF;
-
-                alphaArray[y * width + x] = alpha;
-                redArray[y * width + x] = red;
-                greenArray[y * width + x] = green;
-                blueArray[y * width + x] = blue;
+                alphaArray[y * width + x] = (pixel >> 24) & 0xFF;
+                redArray[y * width + x] = pixel >> 16 & 0xFF;
+                greenArray[y * width + x] = pixel >> 8 & 0xFF;
+                blueArray[y * width + x] = pixel & 0xFF;
             }
         }
-
+        freqTable = new FrequencyTable(concatenateChannels(alphaArray, redArray, greenArray, blueArray));
         progressBar = ProgressBar.builder().setTaskName("Encoding channels").setInitialMax(4).showSpeed().build();
 
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+        System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
         List<Future<List<ArithmeticEncodedData>>> futures = new ArrayList<>();
 
         futures.add(executor.submit(() -> encodeChannel(alphaArray)));
@@ -77,7 +75,10 @@ public class ArithmeticImageEncoder {
         List<ArithmeticEncodedData> encodedRedChannel = futures.get(1).get();
         List<ArithmeticEncodedData> encodedGreenChannel = futures.get(2).get();
         List<ArithmeticEncodedData> encodedBlueChannel = futures.get(3).get();
+
         executor.shutdown();
+        executor.awaitTermination(10, TimeUnit.SECONDS);
+
         progressBar.close();
 
 
@@ -91,14 +92,59 @@ public class ArithmeticImageEncoder {
     }
 
     private List<ArithmeticEncodedData> encodeChannel(int[] channel) {
-        if (channel.length == 0)
-            return Collections.emptyList();
+        if (channel.length == 0) return Collections.emptyList();
+
         List<ArithmeticEncodedData> encodedChannel = new ArrayList<>();
+        List<Callable<ArithmeticEncodedData>> chunkTasks = new ArrayList<>();
+
+        // Create tasks for each chunk
         for (int i = 0; i < numberOfChunksPerChannel; i++) {
-            ArithmeticEncodedData encodedChunk = encoder.encode(Arrays.copyOfRange(channel, i * chunkSize, (i + 1) * chunkSize));
-            encodedChannel.add(encodedChunk);
+            final int start = i * chunkSize;
+            final int end = (i + 1) * chunkSize; // Ensure we don't go out of bounds
+            chunkTasks.add(() -> {
+                int[] chunk = Arrays.copyOfRange(channel, start, end);
+                return encoder.encode(chunk);
+            });
         }
+
+        try {
+            // Execute all tasks and wait for them to finish
+            List<Future<ArithmeticEncodedData>> futures = executor.invokeAll(chunkTasks);
+
+            // Collect the results once all tasks are done
+            for (Future<ArithmeticEncodedData> future : futures) {
+                encodedChannel.add(future.get());  // Blocking here but only once per task group
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
         progressBar.step();
         return encodedChannel;
+    }
+
+    private int[] concatenateChannels(int[] array1, int[] array2, int[] array3, int[] array4) {
+        // Calculate the total length of the concatenated array
+        int totalLength = array1.length + array2.length + array3.length + array4.length;
+
+        // Create a new array to hold all the elements
+        int[] result = new int[totalLength];
+
+        // Copy elements from each array into the result array
+        System.arraycopy(array1, 0, result, 0, array1.length);
+        System.arraycopy(array2, 0, result, array1.length, array2.length);
+        System.arraycopy(array3, 0, result, array1.length + array2.length, array3.length);
+        System.arraycopy(array4, 0, result, array1.length + array2.length + array3.length, array4.length);
+
+        return result;
+    }
+
+
+    public FrequencyTable getFreqTable() {
+        return freqTable;
+    }
+
+    public void setFreqTable(FrequencyTable freqTable) {
+        this.freqTable = freqTable;
     }
 }
