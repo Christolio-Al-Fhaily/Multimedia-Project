@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-        testSIC();
+        testSICOptimizer();
     }
 
     public static void testArithmetic() throws IOException, ExecutionException, InterruptedException {
@@ -57,7 +57,7 @@ public class Main {
         File imageFile = new File("C:\\Users\\Christolio\\Desktop\\testImage.png");
         File outputFile = new File("C:\\Users\\Christolio\\Desktop\\encoded_testImage.sic");
         File outputCSV = new File("C:\\Users\\Christolio\\Desktop\\optimizer_results.csv");
-        SICOptimizer optimizer = new SICOptimizer(10, 100, 10, 16, 64, 16, outputCSV);
+        SICOptimizer optimizer = new SICOptimizer(10, 200, 10, 16, 64, 16, outputCSV);
         optimizer.optimize(imageFile, outputFile);
     }
 }

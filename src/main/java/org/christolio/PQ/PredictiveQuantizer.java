@@ -137,4 +137,65 @@ public class PredictiveQuantizer {
 
         return copy;
     }
+
+
+    public BufferedImage decodeGreenChannel(BufferedImage quantizedImage) {
+        int width = quantizedImage.getWidth();
+        int height = quantizedImage.getHeight();
+        int[][] reconstructedGreenChannel = new int[height][width];
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                // Extract quantized residual from the green channel
+                int rgb = quantizedImage.getRGB(j, i);
+                int quantizedResidual = (rgb >> 8) & 0xFF;
+
+                // Reverse quantization
+                double minResidual = -255.0;
+                double maxResidual = 255.0;
+                double normalizedResidual = quantizedResidual / (double) (numLevels - 1);
+                double residual = normalizedResidual * (maxResidual - minResidual) + minResidual;
+
+                // Reconstruct the original value
+                double predictedValue = predict8Neighbors(i, j, reconstructedGreenChannel);
+                int reconstructedValue = (int) Math.round(predictedValue + residual);
+
+                // Clamp to valid range (0-255)
+                reconstructedValue = Math.max(0, Math.min(255, reconstructedValue));
+
+                reconstructedGreenChannel[i][j] = reconstructedValue;
+            }
+        }
+
+        // Create a new image with the reconstructed green channel
+        return reconstructImageFromGreenChannel(quantizedImage, reconstructedGreenChannel);
+    }
+
+    private BufferedImage reconstructImageFromGreenChannel(BufferedImage original, int[][] greenChannel) {
+        BufferedImage reconstructedImage = copyBufferedImage(original);
+
+        int height = greenChannel.length;
+        int width = greenChannel[0].length;
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int green = greenChannel[i][j];
+
+                // Get the current RGB value of the pixel
+                int rgb = reconstructedImage.getRGB(j, i);
+
+                // Clear the existing green channel (bits 8-15) by ANDing with a mask
+                rgb = rgb & 0xFFFF00FF;
+
+                // Set the new green value by ORing it into the correct position (bits 8-15)
+                rgb = rgb | (green << 8);
+
+                // Update the pixel with the modified RGB value
+                reconstructedImage.setRGB(j, i, rgb);
+            }
+        }
+
+        return reconstructedImage;
+    }
+
 }

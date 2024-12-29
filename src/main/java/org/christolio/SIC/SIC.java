@@ -47,8 +47,9 @@ public class SIC {
     public BufferedImage decode(File inputFile) throws ExecutionException, InterruptedException, IOException {
         ArithmeticImageEncodedData encodedData = SICReader.read(inputFile.getPath());
         BufferedImage decodedImage = decoder.decode(encodedData);
-        ImageIO.write(decodedImage, "PNG", new File(inputFile.getParentFile().getPath() + "\\decoded_" + inputFile.getName().substring(inputFile.getName().indexOf("_") + 1, inputFile.getName().lastIndexOf(".")) + ".png"));
-        return decodedImage;
+        BufferedImage dequantizedImage = quantizer.decodeGreenChannel(decodedImage);
+        ImageIO.write(dequantizedImage, "PNG", new File(inputFile.getParentFile().getPath() + "\\decoded_" + inputFile.getName().substring(inputFile.getName().indexOf("_")+1,inputFile.getName().lastIndexOf(".")) + ".png"));
+        return dequantizedImage;
     }
 
     public int getNumLevels() {
