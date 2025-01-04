@@ -37,12 +37,10 @@ public class ArithmeticImageEncoder {
 
         numberOfChunksPerChannel = (int) Math.ceil((double) (width * height) / chunkSize);
 
-        int[] alphaArray = new int[numberOfChunksPerChannel * chunkSize];
         int[] redArray = new int[numberOfChunksPerChannel * chunkSize];
         int[] greenArray = new int[numberOfChunksPerChannel * chunkSize];
         int[] blueArray = new int[numberOfChunksPerChannel * chunkSize];
 
-        Arrays.fill(alphaArray, 0);
         Arrays.fill(redArray, 0);
         Arrays.fill(greenArray, 0);
         Arrays.fill(blueArray, 0);
@@ -54,27 +52,24 @@ public class ArithmeticImageEncoder {
 
                 int pixel = imageToEncode.getRGB(x, y);
 
-                alphaArray[y * width + x] = (pixel >> 24) & 0xFF;
                 redArray[y * width + x] = pixel >> 16 & 0xFF;
                 greenArray[y * width + x] = pixel >> 8 & 0xFF;
                 blueArray[y * width + x] = pixel & 0xFF;
             }
         }
-        freqTable = new FrequencyTable(concatenateChannels(alphaArray, redArray, greenArray, blueArray));
-        progressBar = ProgressBar.builder().setTaskName("Encoding channels").setInitialMax(4).showSpeed().build();
+        freqTable = new FrequencyTable(concatenateChannels(redArray, greenArray, blueArray));
+        progressBar = ProgressBar.builder().setTaskName("Encoding channels").setInitialMax(3).showSpeed().build();
 
         System.out.println("Available processors: " + Runtime.getRuntime().availableProcessors());
         List<Future<List<ArithmeticEncodedData>>> futures = new ArrayList<>();
 
-        futures.add(executor.submit(() -> encodeChannel(alphaArray)));
         futures.add(executor.submit(() -> encodeChannel(redArray)));
         futures.add(executor.submit(() -> encodeChannel(greenArray)));
         futures.add(executor.submit(() -> encodeChannel(blueArray)));
 
-        List<ArithmeticEncodedData> encodedAlphaChannel = futures.get(0).get();
-        List<ArithmeticEncodedData> encodedRedChannel = futures.get(1).get();
-        List<ArithmeticEncodedData> encodedGreenChannel = futures.get(2).get();
-        List<ArithmeticEncodedData> encodedBlueChannel = futures.get(3).get();
+        List<ArithmeticEncodedData> encodedRedChannel = futures.get(0).get();
+        List<ArithmeticEncodedData> encodedGreenChannel = futures.get(1).get();
+        List<ArithmeticEncodedData> encodedBlueChannel = futures.get(2).get();
 
         executor.shutdown();
         executor.awaitTermination(10, TimeUnit.SECONDS);
@@ -83,7 +78,6 @@ public class ArithmeticImageEncoder {
 
 
         ArithmeticImageEncodedData encodedImage = new ArithmeticImageEncodedData(width, height, chunkSize);
-        encodedImage.addChunks(encodedAlphaChannel);
         encodedImage.addChunks(encodedRedChannel);
         encodedImage.addChunks(encodedGreenChannel);
         encodedImage.addChunks(encodedBlueChannel);
@@ -123,9 +117,9 @@ public class ArithmeticImageEncoder {
         return encodedChannel;
     }
 
-    private int[] concatenateChannels(int[] array1, int[] array2, int[] array3, int[] array4) {
+    private int[] concatenateChannels(int[] array1, int[] array2, int[] array3) {
         // Calculate the total length of the concatenated array
-        int totalLength = array1.length + array2.length + array3.length + array4.length;
+        int totalLength = array1.length + array2.length + array3.length;
 
         // Create a new array to hold all the elements
         int[] result = new int[totalLength];
@@ -134,7 +128,6 @@ public class ArithmeticImageEncoder {
         System.arraycopy(array1, 0, result, 0, array1.length);
         System.arraycopy(array2, 0, result, array1.length, array2.length);
         System.arraycopy(array3, 0, result, array1.length + array2.length, array3.length);
-        System.arraycopy(array4, 0, result, array1.length + array2.length + array3.length, array4.length);
 
         return result;
     }

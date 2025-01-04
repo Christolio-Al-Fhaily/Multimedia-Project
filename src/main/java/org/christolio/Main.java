@@ -54,9 +54,9 @@ public class Main {
     }
 
     public static void testSICOptimizer() throws IOException, ExecutionException, InterruptedException {
-        File imageFile = new File("C:\\Users\\Christolio\\Desktop\\testImage.png");
-        File outputFile = new File("C:\\Users\\Christolio\\Desktop\\encoded_testImage.sic");
-        File outputCSV = new File("C:\\Users\\Christolio\\Desktop\\optimizer_results.csv");
+        File imageFile = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Optimization\\testImage.png");
+        File outputFile = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Optimization\\encoded_testImage.sic");
+        File outputCSV = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Optimization\\optimizer_results.csv");
         SICOptimizer optimizer = new SICOptimizer(10, 200, 10, 16, 64, 16, outputCSV);
         optimizer.optimize(imageFile, outputFile);
     }

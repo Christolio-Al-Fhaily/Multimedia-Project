@@ -31,31 +31,28 @@ public class ArithmeticImageDecoder {
 
         List<ArithmeticEncodedData> encodedChunks = encodedData.getEncodedChunks();
 
-        int alphaStopIndex = numberOfChunksPerChannel;
-        int redStopIndex = 2 * numberOfChunksPerChannel;
-        int greenStopIndex = 3 * numberOfChunksPerChannel;
-        int blueStopIndex = 4 * numberOfChunksPerChannel;
+        int redStopIndex =  numberOfChunksPerChannel;
+        int greenStopIndex = 2 * numberOfChunksPerChannel;
+        int blueStopIndex = 3 * numberOfChunksPerChannel;
 
         progressBar = ProgressBar.builder().setTaskName("Decoding chunks").setInitialMax(encodedChunks.size()).showSpeed().build();
 
         List<Future<int[]>> futures = new ArrayList<>();
 
-        futures.add(executor.submit(() -> decodeChannel(encodedChunks, 0, alphaStopIndex)));
-        futures.add(executor.submit(() -> decodeChannel(encodedChunks, alphaStopIndex , redStopIndex)));
+        futures.add(executor.submit(() -> decodeChannel(encodedChunks, 0 , redStopIndex)));
         futures.add(executor.submit(() -> decodeChannel(encodedChunks, redStopIndex , greenStopIndex)));
         futures.add(executor.submit(() -> decodeChannel(encodedChunks, greenStopIndex , blueStopIndex)));
 
         // Wait for all decoding tasks to finish
-        int[] alphaChannel = futures.get(0).get();
-        int[] redChannel = futures.get(1).get();
-        int[] greenChannel = futures.get(2).get();
-        int[] blueChannel = futures.get(3).get();
+        int[] redChannel = futures.get(0).get();
+        int[] greenChannel = futures.get(1).get();
+        int[] blueChannel = futures.get(2).get();
 
         executor.shutdown();
 
         progressBar.close();
 
-        return reconstructImage(alphaChannel, redChannel, greenChannel, blueChannel, width, height);
+        return reconstructImage(redChannel, greenChannel, blueChannel, width, height);
     }
 
     private int[] decodeChannel(List<ArithmeticEncodedData> encodedChunks, int startIndex, int stopIndex) throws InterruptedException, ExecutionException {
@@ -84,9 +81,9 @@ public class ArithmeticImageDecoder {
         return Arrays.copyOfRange(decodedChannel, 0, width * height);
     }
 
-    private BufferedImage reconstructImage(int[] a, int[] r, int[] g, int[] b, int width, int height) {
+    private BufferedImage reconstructImage(int[] r, int[] g, int[] b, int width, int height) {
         // Create a new BufferedImage with the given width and height
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
         // Iterate through each pixel and combine the individual channels into an ARGB value
         for (int y = 0; y < height; y++) {
@@ -94,11 +91,11 @@ public class ArithmeticImageDecoder {
                 // Calculate the index of the current pixel
                 int index = y * width + x;
 
-                // Combine alpha, red, green, and blue channels into a single ARGB value
-                int argb = (a[index] << 24) | (r[index] << 16) | (g[index] << 8) | b[index];
+                // Combine red, green, and blue channels into a single ARGB value
+                int rgb =  (r[index] << 16) | (g[index] << 8) | b[index];
 
                 // Set the pixel at the specified (x, y) position
-                image.setRGB(x, y, argb);
+                image.setRGB(x, y, rgb);
             }
         }
 
