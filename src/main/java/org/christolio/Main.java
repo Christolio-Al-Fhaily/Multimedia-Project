@@ -19,12 +19,12 @@ import java.util.concurrent.ExecutionException;
 
 public class Main {
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
-        testSICOptimizer();
+        testSIC();
     }
 
     public static void testArithmetic() throws IOException, ExecutionException, InterruptedException {
         BufferedImage image = ImageIO.read(Objects.requireNonNull(Main.class.getResource("/testImage.png")));
-        ArithmeticImageEncoder encoder = new ArithmeticImageEncoder(50);
+        ArithmeticImageEncoder encoder = new ArithmeticImageEncoder(100);
         ArithmeticImageEncodedData encodedImage = encoder.encodeImage(image);
         SICWriter.write(encodedImage, "D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\ImageCompression", "encodedImage");
         ArithmeticImageEncodedData savedEncodedImage = SICReader.read("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\ImageCompression\\encodedImage.sic");
@@ -44,19 +44,19 @@ public class Main {
     }
 
     public static void testSIC() throws IOException, ExecutionException, InterruptedException {
-        SIC sic = new SIC(16, 50);
-        File imageFile = new File("C:\\Users\\Christolio\\Desktop\\testImage.png");
+        SIC sic = new SIC(16, 100);
+        File imageFile = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Results\\testImage.png");
         Metrics metrics = sic.encode(imageFile);
-        File file = new File("C:\\Users\\Christolio\\Desktop\\encoded_testImage.sic");
+        File file = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Results\\encoded_testImage.sic");
         BufferedImage reconstructed = sic.decode(file);
         metrics.calculatePSNR(reconstructed);
         System.out.println(metrics);
     }
 
     public static void testSICOptimizer() throws IOException, ExecutionException, InterruptedException {
-        File imageFile = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Optimization\\testImage.png");
-        File outputFile = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Optimization\\encoded_testImage.sic");
-        File outputCSV = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Optimization\\optimizer_results.csv");
+        File imageFile = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Results\\testImage.png");
+        File outputFile = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Results\\encoded_testImage.sic");
+        File outputCSV = new File("D:\\University\\Year 5\\Sem 9\\Cours\\Multimedia\\Projet\\Results\\optimizer_results.csv");
         SICOptimizer optimizer = new SICOptimizer(10, 200, 10, 16, 64, 16, outputCSV);
         optimizer.optimize(imageFile, outputFile);
     }
